@@ -1,0 +1,675 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Crowd Monitoring System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0b1120;
+            color: #f8fafc;
+        }
+
+        header {
+            background: #162238;
+            padding: 28px;
+        }
+
+        header h1 {
+            margin-top: 0;
+            font-size: 34px;
+        }
+
+        header p {
+            color: #cbd5e1;
+        }
+
+        main {
+            max-width: 1250px;
+            margin: auto;
+            padding: 25px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            background: #162238;
+            border: 1px solid #34445f;
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 22px;
+            min-width: 0;
+        }
+
+        h2 {
+            font-size: 28px;
+        }
+
+        input[type="file"],
+        input[type="number"] {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 14px 0;
+            border: 1px solid #52617a;
+            border-radius: 10px;
+            background: #0b1120;
+            color: white;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: #32bbed;
+            color: #06111e;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #68d2f7;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .result-box {
+            padding: 16px;
+            border-radius: 12px;
+            background: #0b1120;
+            border: 1px solid #34445f;
+            overflow-wrap: anywhere;
+        }
+
+        .result-box p {
+            color: #aebed5;
+            margin-bottom: 8px;
+        }
+
+        .result-box strong {
+            font-size: 21px;
+        }
+
+        .notice {
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        #uploadResult {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        @media (max-width: 750px) {
+            .cards,
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 16px;
+            }
+
+            header h1 {
+                font-size: 27px;
+            }
+        }
+        
+/* Missing Person Form Layout */
+#missingPersonForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+#missingPersonForm label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+#missingPersonForm input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #40516c;
+    border-radius: 8px;
+    background: #0b1120;
+    color: #f8fafc;
+}
+
+#missingPersonForm input[type="file"] {
+    grid-column: 1 / -1;
+}
+
+#missingPersonForm button {
+    grid-column: 1 / -1;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #30b8e8;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#missingPersonForm button:hover {
+    opacity: 0.88;
+}
+
+@media (max-width: 700px) {
+    #missingPersonForm {
+        grid-template-columns: 1fr;
+    }
+
+    #missingPersonForm button,
+    #missingPersonForm input[type="file"] {
+        grid-column: 1;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>AI Crowd Monitoring System</h1>
+    <p>Intelligent Crowd Density Monitoring and Decision Support</p>
+</header>
+
+<main>
+    <h2>Analyze Crowd Media</h2>
+
+    <div class="cards">
+
+        <!-- IMAGE ANALYSIS -->
+        <section class="card">
+            <h2>Image Analysis</h2>
+
+            <form id="imageForm">
+                <input
+                    type="file"
+                    name="file"
+                    id="imageFile"
+                    accept="image/*"
+                    required>
+
+                <input
+                    type="number"
+                    name="area"
+                    id="imageArea"
+                    min="1"
+                    step="any"
+                    placeholder="Area in square metres"
+                    required>
+
+                <button type="submit">Analyze Image</button>
+            </form>
+            <div id="imagePreviewArea" class="notice" style="display:none;">
+    <img id="imagePreview" alt="Selected image preview"
+         style="max-width:100%;max-height:350px;border-radius:10px;">
+</div>
+<p id="imageProgress" class="notice" style="display:none;">
+    Analyzing image...
+</p>
+        </section>
+
+        <!-- VIDEO ANALYSIS -->
+        <section class="card">
+            <h2>Video Analysis</h2>
+
+            <form id="videoForm">
+                <input
+                    type="file"
+                    name="file"
+                    id="videoFile"
+                    accept="video/*"
+                    required>
+
+                <input
+                    type="number"
+                    name="area"
+                    id="videoArea"
+                    min="1"
+                    step="any"
+                    placeholder="Area in square metres"
+                    required>
+
+                <button type="submit">Analyze Video</button>
+            </form>
+            
+<div id="videoPreviewArea" class="notice" style="display:none;">
+    <video
+        id="videoPreview"
+        controls
+        muted
+        playsinline
+        style="width:100%; max-height:350px; border-radius:10px; object-fit:contain;">
+    </video>
+<p id="videoProgress" class="notice" style="display:none;" aria-live="polite"></p>
+        </section>
+    </div>
+
+    <!-- MONITORING RESULTS -->
+    <section class="card">
+        <h2>Monitoring Results</h2>
+
+        <div class="result-grid">
+            <div class="result-box">
+                <p>Date</p>
+                <strong id="currentDate">--</strong>
+            </div>
+
+            <div class="result-box">
+                <p>Current Time</p>
+                <strong id="currentTime">--</strong>
+            </div>
+
+            <div class="result-box">
+                <p>Elapsed Monitoring Time</p>
+                <strong id="elapsedTime">0 min 0 sec</strong>
+            </div>
+
+            <div class="result-box">
+                <p>Video Duration</p>
+                <strong id="videoDuration">Not analyzed</strong>
+            </div>
+            
+            <div class="result-box">
+                <p>Frames Analyzed</p>
+                 <strong id="framesAnalyzed">Not analyzed</strong>
+            </div>
+
+            <div class="result-box">
+                <p>People Detected</p>
+                <strong id="peopleCount">Waiting for AI</strong>
+            </div>
+
+            <div class="result-box">
+                <p>Crowd Density</p>
+                <strong id="density">Not analyzed</strong>
+            </div>
+
+            <div class="result-box">
+                <p>Crowd Status</p>
+                <strong id="crowdStatus">Not analyzed</strong>
+            </div>
+        </div>
+
+        
+
+        <h2>Analysis Details</h2>
+        <p id="uploadResult" class="notice">
+            Select an image or video to begin analysis.
+        </p>
+    </section>
+
+    <section class="card">
+    <h2>Dataset and Prediction</h2>
+
+    <p class="notice">
+        Dataset evaluation and crowd prediction.
+    </p>
+
+    <label for="datasetImage">Select a dataset image:</label>
+<input type="file" id="datasetImage" accept="image/*">
+
+<img id="datasetPreview"
+     alt="Selected dataset image preview"
+     style="display:none; max-width:100%; max-height:400px; margin-top:15px; border-radius:10px;">
+
+<button type="button" id="evaluateDataset">
+    Analyze Dataset Image
+</button>
+
+<div id="datasetResult" class="notice">
+    Select an image to begin dataset evaluation.
+</div>
+</section>
+
+<!-- MISSING PERSON SEARCH -->
+<section class="card" style="margin-top: 24px;">
+    <h2>Missing Person Search</h2>
+    <p>Register a complaint and search recorded crowd videos for possible sightings.</p>
+
+    <form id="missingPersonForm">
+        <label for="caseId">Complaint / Case ID</label>
+        <input type="text" id="caseId" name="caseId"
+               placeholder="Enter case ID" required>
+
+        <label for="personName">Person's Name</label>
+        <input type="text" id="personName" name="personName"
+               placeholder="Enter full name" required>
+
+        <label for="personPhoto">Reference Photo</label>
+        <input type="file" id="personPhoto" name="personPhoto"
+               accept="image/*" required>
+
+        <label for="clothing">Clothing Description</label>
+        <input type="text" id="clothing" name="clothing"
+               placeholder="e.g. blue shirt, black trousers">
+
+        <label for="lastSeen">Last-Seen Location</label>
+        <input type="text" id="lastSeen" name="lastSeen"
+               placeholder="Enter location" required>
+
+        <label for="lastSeenTime">Approximate Last-Seen Date and Time</label>
+        <input type="datetime-local" id="lastSeenTime"
+               name="lastSeenTime" required>
+
+        <button type="submit">Register Missing Person</button>
+    </form>
+
+    <p id="complaintMessage" class="notice" role="status">
+    Register a complaint to start the video search.
+</p>
+
+<div id="videoSearchResults" class="notice" aria-live="polite"></div>
+</section>
+
+</main>
+
+<script>
+(function () {
+    const byId = (id) => document.getElementById(id);
+
+    function updateClock() {
+        const now = new Date();
+        byId("currentDate").textContent = now.toLocaleDateString("en-IN");
+        byId("currentTime").textContent = now.toLocaleTimeString("en-IN");
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const monitoringStart = Date.now();
+    setInterval(function () {
+        const seconds = Math.floor((Date.now() - monitoringStart) / 1000);
+        byId("elapsedTime").textContent = Math.floor(seconds / 60) + " min " + (seconds % 60) + " sec";
+    }, 1000);
+
+    function updateDashboard(result) {
+    if (result.peopleCount !== undefined) {
+        byId("peopleCount").textContent = result.peopleCount;
+    }
+
+    if (result.density !== undefined) {
+        byId("density").textContent = result.density;
+    }
+
+    if (result.status !== undefined) {
+        byId("crowdStatus").textContent = result.status;
+    }
+
+    if (result.durationSeconds !== undefined) {
+        const total = Math.floor(Number(result.durationSeconds));
+        byId("videoDuration").textContent =
+            Math.floor(total / 60) + " min " + (total % 60) + " sec";
+    }
+
+    if (result.framesAnalyzed !== undefined) {
+        byId("framesAnalyzed").textContent = result.framesAnalyzed;
+    }
+
+    if (result.missingAlert !== undefined) {
+        byId("missingAlert").textContent = result.missingAlert;
+    }
+}
+
+    // Image and video previews
+    let imagePreviewUrl = null;
+    let videoPreviewUrl = null;
+    byId("imageFile").addEventListener("change", function () {
+        const file = this.files && this.files[0];
+        if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+        if (!file) { byId("imagePreviewArea").style.display = "none"; return; }
+        imagePreviewUrl = URL.createObjectURL(file);
+        byId("imagePreview").src = imagePreviewUrl;
+        byId("imagePreviewArea").style.display = "block";
+    });
+    byId("videoFile").addEventListener("change", function () {
+        const file = this.files && this.files[0];
+        if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+        if (!file) { byId("videoPreviewArea").style.display = "none"; return; }
+        videoPreviewUrl = URL.createObjectURL(file);
+        byId("videoPreview").src = videoPreviewUrl;
+        byId("videoPreviewArea").style.display = "block";
+        byId("videoPreview").load();
+    });
+
+    // Image analysis (single submit handler)
+    byId("imageForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const form = this;
+        const file = byId("imageFile").files[0];
+        const area = byId("imageArea").value;
+        const progress = byId("imageProgress");
+        const button = form.querySelector('button[type="submit"]');
+        if (!file || !area || Number(area) <= 0) {
+            progress.style.display = "block";
+            progress.textContent = "Please select an image and enter a valid area.";
+            return;
+        }
+        const data = new FormData(form);
+        data.set("type", "image");
+        progress.style.display = "block";
+        progress.textContent = "Analyzing image...";
+        byId("uploadResult").textContent = "Sending image to AI detector...";
+        button.disabled = true;
+        try {
+            const response = await fetch("/api/analyze", { method: "POST", body: data });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || result.message || "Image analysis failed.");
+            updateDashboard(result);
+            progress.textContent = "Image analysis completed. People detected: " + result.peopleCount +
+                " | Density: " + result.density + " | Status: " + result.status;
+            byId("uploadResult").textContent = result.message || "Image analysis completed.";
+            // Optional annotated-image endpoint, if implemented by the backend.
+            try {
+                const boxData = new FormData();
+                boxData.append("file", file);
+                const boxResponse = await fetch("/api/analyze/boxes", { method: "POST", body: boxData });
+                if (boxResponse.ok && (boxResponse.headers.get("content-type") || "").startsWith("image/")) {
+                    const blob = await boxResponse.blob();
+                    const annotatedUrl = URL.createObjectURL(blob);
+                    const old = byId("imagePreview").dataset.annotatedUrl;
+                    if (old) URL.revokeObjectURL(old);
+                    byId("imagePreview").src = annotatedUrl;
+                    byId("imagePreview").dataset.annotatedUrl = annotatedUrl;
+                }
+            } catch (ignored) { /* The main image result remains valid without an annotated preview. */ }
+        } catch (error) {
+            progress.textContent = "Image analysis failed: " + error.message;
+            byId("uploadResult").textContent = "Check that the Spring Boot server is running and /api/analyze is available.";
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    // Video analysis with progress polling; backend must support jobId and progress endpoint.
+    byId("videoForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const form = this;
+        const file = byId("videoFile").files[0];
+        const area = byId("videoArea").value;
+        const progress = byId("videoProgress");
+        const button = form.querySelector('button[type="submit"]');
+        progress.style.display = "block";
+        if (!file || !area || Number(area) <= 0) {
+            progress.textContent = "Please select a video and enter a valid area.";
+            return;
+        }
+        const jobId = (window.crypto && typeof window.crypto.randomUUID === "function")
+            ? window.crypto.randomUUID() : "job-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+        const data = new FormData(form);
+        data.set("type", "video");
+        data.set("jobId", jobId);
+        progress.textContent = "Uploading video and starting analysis...";
+        byId("uploadResult").textContent = "Video analysis is running...";
+        button.disabled = true;
+        let pollTimer = null;
+        let polling = false;
+        try {
+            pollTimer = setInterval(async function () {
+                if (polling) return;
+                polling = true;
+                try {
+                    const r = await fetch("/api/analyze/progress/" + encodeURIComponent(jobId));
+                    if (r.ok) {
+                        const p = await r.json();
+                        progress.textContent = "Analyzing video: " + (p.progressPercent ?? 0) +
+                            "% | People detected: " + (p.peopleCount ?? 0) +
+                            " | Frames analyzed: " + (p.framesAnalyzed ?? 0);
+                    }
+                } catch (ignored) { /* Keep waiting for the main analysis request. */ }
+                finally { polling = false; }
+            }, 700);
+            const response = await fetch("/api/analyze", { method: "POST", body: data });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || result.message || "Video analysis failed.");
+           updateDashboard({
+    ...result,
+    peopleCount: result.peopleCount ?? result.peopleDetected,
+    durationSeconds: result.durationSeconds ?? result.videoDuration,
+    framesAnalyzed: result.framesAnalyzed
+});
+            byId("uploadResult").textContent =
+    "Video analysis completed successfully.";
+            console.log("FINAL VIDEO RESULT:", result);
+            progress.textContent = "Video analysis completed. People detected (maximum in sampled frames): " +
+                result.peopleCount + " | Density: " + result.density + " | Status: " + result.status +
+                " | Frames analyzed: " + (result.framesAnalyzed ?? "Not provided");
+                
+
+           
+        } catch (error) {
+            progress.textContent = "Video analysis failed: " + error.message;
+            byId("uploadResult").textContent = "Check the Spring Boot server and the /api/analyze endpoint.";
+        } finally {
+            if (pollTimer !== null) clearInterval(pollTimer);
+            button.disabled = false;
+        }
+    });
+
+    // Register a missing-person complaint and display backend-returned scan results.
+    byId("missingPersonForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const form = this;
+        const message = byId("complaintMessage");
+        const results = byId("videoSearchResults");
+        const button = form.querySelector('button[type="submit"]');
+        message.textContent = "Registering complaint...";
+        results.replaceChildren();
+        button.disabled = true;
+        try {
+            const response = await fetch("/api/missing-person", { method: "POST", body: new FormData(form) });
+            const result = await response.json();
+            if (!response.ok || result.success !== true) throw new Error(result.message || result.error || "Unable to register complaint.");
+            message.textContent = "Complaint registered. " + (result.message || "");
+            if (Array.isArray(result.videoScanResults) && result.videoScanResults.length) {
+                const heading = document.createElement("h3");
+                heading.textContent = "Video Search Results (unverified candidates)";
+                results.appendChild(heading);
+                const note = document.createElement("p");
+                note.textContent = "These results are not confirmed identities. Human review is required.";
+                results.appendChild(note);
+                const list = document.createElement("ul");
+                result.videoScanResults.forEach(function (item) {
+                    const li = document.createElement("li");
+                    li.textContent = String(item);
+                    list.appendChild(li);
+                });
+                results.appendChild(list);
+            } else if (result.searchStatus === "FAILED") {
+                results.textContent = "Complaint saved, but video search failed: " + (result.searchError || "Check backend logs.");
+            } else {
+                results.textContent = "Complaint saved. No video search results were returned.";
+            }
+            form.reset();
+        } catch (error) {
+            message.textContent = "Complaint registration failed: " + error.message;
+        } finally {
+            button.disabled = false;
+        }
+    });
+})();
+
+document.getElementById("datasetImage").addEventListener("change", function () {
+    const preview = document.getElementById("datasetPreview");
+
+    if (this.files && this.files[0]) {
+        preview.src = URL.createObjectURL(this.files[0]);
+        preview.style.display = "block";
+    } else {
+        preview.style.display = "none";
+    }
+});
+document.getElementById("evaluateDataset").addEventListener("click", async function () {
+    const result = document.getElementById("datasetResult");
+    const fileInput = document.getElementById("datasetImage");
+    const preview = document.getElementById("datasetPreview");
+    const button = this;
+
+    button.disabled = true;
+    result.textContent = "Analyzing selected dataset image...";
+
+try {
+    const data = new FormData();
+    data.append("file", fileInput.files[0]);
+    data.append("area", "100");
+    data.append("type", "image");
+
+    const response = await fetch("/api/analyze", {
+        method: "POST",
+        body: data
+    });
+    const output = await response.json();
+
+        if (!response.ok) {
+            throw new Error(output.error || "Dataset analysis failed.");
+        }
+
+        let crowdLevel;
+
+if (output.peopleCount < 20) {
+    crowdLevel = "LOW";
+} else if (output.peopleCount < 50) {
+    crowdLevel = "MEDIUM";
+} else {
+    crowdLevel = "HIGH";
+}
+
+result.style.whiteSpace = "pre-wrap";
+result.textContent =
+    "Selected image: " + fileInput.files[0].name + "\n" +
+    "People detected: " + output.peopleCount + "\n" +
+    "Crowd density: " + output.density + " people/m²\n" +
+    "Crowd status: " + crowdLevel;
+
+    } catch (error) {
+        result.textContent = "Dataset analysis failed: " + error.message;
+    } finally {
+        button.disabled = false;
+    }
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+com\crowdmonitoring\crowd_monitoring\DashboardController.class
+com\crowdmonitoring\crowd_monitoring\AiDetector$PersonDetection.class
+com\crowdmonitoring\crowd_monitoring\MissingPersonVideoSearch$Candidate.class
+com\crowdmonitoring\crowd_monitoring\CrowdMonitoringApplication.class
+com\crowdmonitoring\crowd_monitoring\MediaController.class
+com\crowdmonitoring\crowd_monitoring\MissingPersonVideoSearch.class
+com\crowdmonitoring\crowd_monitoring\DatasetEvaluator.class
+com\crowdmonitoring\crowd_monitoring\VideoAnalyzer.class
+com\crowdmonitoring\crowd_monitoring\AiDetector.class
+com\crowdmonitoring\crowd_monitoring\MissingPersonStore.class
